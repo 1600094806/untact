@@ -47,4 +47,33 @@ public class UsrArticleControll {
 		rs.put("id", articlesLastId);
 		return rs;
 	}
+	
+	@RequestMapping("/usr/article/doDelete")
+	@ResponseBody
+	public Map<String, Object> doDelete(int id) {
+		Map<String,Object> rs = new HashMap<>();
+		if(deleteArticle(id)) {
+			rs.put("resultCode", "S-1");
+			rs.put("msg", "삭제 성공");
+			rs.put("id" , id);
+		} else {
+			rs.put("resultCode", "F-1");
+			rs.put("msg", "삭제 실패");
+			rs.put("id" , id);
+		}
+		return rs;
+		
+		
+	}
+
+	public boolean deleteArticle(int id) {
+		for(Article a:articles) {
+			if(a.getId() == id) {
+				articles.remove(a);
+				return true;
+			}
+		}
+		return false;
+		
+	}
 }
