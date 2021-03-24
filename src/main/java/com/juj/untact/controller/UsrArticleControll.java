@@ -62,8 +62,6 @@ public class UsrArticleControll {
 			rs.put("id" , id);
 		}
 		return rs;
-		
-		
 	}
 
 	public boolean deleteArticle(int id) {
@@ -75,5 +73,34 @@ public class UsrArticleControll {
 		}
 		return false;
 		
+	}
+	
+	@RequestMapping("/usr/article/doModify")
+	@ResponseBody
+	public Map<String, Object> doModify(int id,String title,String body) {
+		Map<String,Object> rs = new HashMap<>();
+		Article article = null;
+		for(Article a:articles) {
+			if(a.getId() == id) {
+				article = a;
+				break;
+			}
+		}
+		if(article == null) {
+			rs.put("resultCode", "F-1");
+			rs.put("msg", "Don't exist");
+			return rs;
+		} else {
+			article.setBody(body);
+			article.setTitle(title);
+			rs.put("resultCode", "S-1");
+			rs.put("msg", "Modify Success!");
+			rs.put("id" , article.getId());
+			rs.put("title" , article.getTitle());
+			rs.put("body" , article.getBody());
+		}
+		
+		
+		return rs;
 	}
 }
