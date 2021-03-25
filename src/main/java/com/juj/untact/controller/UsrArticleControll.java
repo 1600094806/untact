@@ -1,111 +1,75 @@
 package com.juj.untact.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.juj.untact.dto.Article;
+import com.juj.untact.dto.ResultData;
+import com.juj.untact.service.ArticleService;
 import com.juj.untact.util.Util;
 
 @Controller
 public class UsrArticleControll {
+	@Autowired
+	private ArticleService articleservice;
 	
-	private List<Article> articles;
-	private int articlesLastId;
 	
-	public UsrArticleControll() {
-		articlesLastId = 0;
-		articles = new ArrayList<>();
-		articles.add(new Article(++articlesLastId,"2020-12-12 12:12:12" ,"제목 1","내용 1"));
-		articles.add(new Article(++articlesLastId,"2020-12-12 12:12:12" ,"제목 2","내용 2"));
-	}
 	
 	@RequestMapping("/usr/article/detail")
 	@ResponseBody
 	public Article showDetail(int id) {
-		return articles.get(id-1);
+		Article article = articleservice.getArticle(id);
+		return article;
 	}
 	
 	@RequestMapping("/usr/article/list")
 	@ResponseBody
 	public List<Article> showList() {
-		return articles;
+		return articleservice.getList();
 	}
 	
 	@RequestMapping("/usr/article/doAdd")
 	@ResponseBody
-	public Map<String, Object> doAdd(String title ,String body) {
-		String time1 = Util.getNowDateStr();
+	public ResultData doAdd(String title ,String body) {
+		if(title == null) {
+			return new ResultData("resultCode","F-1","이유","타이틀오류");
+		}
+		if(body == null) {
+			return new ResultData("resultCode","F-1","이유","내용오류");
+
+		}
 		
-		articles.add(new Article(++articlesLastId,time1 ,title,body));
 		
-		Map<String,Object> rs = new HashMap<>();
-		rs.put("resultCode", "S-1");
-		rs.put("msg", "성공");
-		rs.put("id", articlesLastId);
-		return rs;
+		return articleservice.add(title, body);
 	}
 	
 
 
 	@RequestMapping("/usr/article/doDelete")
 	@ResponseBody
-	public Map<String, Object> doDelete(int id) {
-		Map<String,Object> rs = new HashMap<>();
-		if(deleteArticle(id)) {
-			rs.put("resultCode", "S-1");
-			rs.put("msg", "삭제 성공");
-			rs.put("id" , id);
-		} else {
-			rs.put("resultCode", "F-1");
-			rs.put("msg", "삭제 실패");
-			rs.put("id" , id);
+	public ResultData doDelete(int id) {
+		if(articleservice.getArticle(id)==null) {
+			return new ResultData("F-1","msg", "삭제 실패","id" , id);
 		}
-		return rs;
+		return articleservice.deleteArticle(id);
 	}
 
-	public boolean deleteArticle(int id) {
-		for(Article a:articles) {
-			if(a.getId() == id) {
-				articles.remove(a);
-				return true;
-			}
-		}
-		return false;
-		
-	}
+	
 	
 	@RequestMapping("/usr/article/doModify")
 	@ResponseBody
-	public Map<String, Object> doModify(int id,String title,String body) {
-		Map<String,Object> rs = new HashMap<>();
-		Article article = null;
-		for(Article a:articles) {
-			if(a.getId() == id) {
-				article = a;
-				break;
-			}
-		}
-		if(article == null) {
-			rs.put("resultCode", "F-1");
-			rs.put("msg", "Don't exist");
-			return rs;
+	public ResultData doModify(int id,String title,String body) {
+		if(articleservice.getArticle(id) == null) {
+			return new ResultData("resultCode", "F-1","msg", "Don't exist");
 		} else {
-			article.setBody(body);
-			article.setTitle(title);
-			rs.put("resultCode", "S-1");
-			rs.put("msg", "Modify Success!");
-			rs.put("id" , article.getId());
-			rs.put("title" , article.getTitle());
-			rs.put("body" , article.getBody());
+			
+			return articleservice.modify(id,title,body,Util.getNowDateStr());
 		}
-		
-		
-		return rs;
 	}
 }
