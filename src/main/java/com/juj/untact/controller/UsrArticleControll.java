@@ -30,7 +30,15 @@ public class UsrArticleControll {
 	
 	@RequestMapping("/usr/article/list")
 	@ResponseBody
-	public List<Article> showList(String searchKeyword) {
+	public List<Article> showList(String searchKeywordType,String searchKeyword) {
+		if(searchKeywordType != null ) {
+			searchKeywordType = searchKeywordType.trim();
+		}
+		
+		if(searchKeywordType == null || searchKeywordType.length() == 0) {
+			searchKeywordType = "titleAndTITLE";
+		}
+		
 		if(searchKeyword != null && searchKeyword.length() == 0) {
 			searchKeyword = null;
 		}
@@ -39,7 +47,7 @@ public class UsrArticleControll {
 			searchKeyword = searchKeyword.trim();
 		}
 		
-		return articleservice.getArticles(searchKeyword);
+		return articleservice.getArticles(searchKeywordType,searchKeyword);
 	}
 	
 	@RequestMapping("/usr/article/doAdd")
@@ -52,7 +60,7 @@ public class UsrArticleControll {
 			return new ResultData("resultCode","F-1","이유","내용오류");
 
 		}
-		return articleservice.add(title, body);
+		return articleservice.addArticle(title, body);
 	}
 	
 
@@ -74,8 +82,7 @@ public class UsrArticleControll {
 		if(articleservice.getArticle(id) == null) {
 			return new ResultData("resultCode", "F-1","msg", "Don't exist");
 		} else {
-			
-			return articleservice.modify(id,title,body,Util.getNowDateStr());
+			return articleservice.modifyArticle(id,title,body,Util.getNowDateStr());
 		}
 	}
 }
