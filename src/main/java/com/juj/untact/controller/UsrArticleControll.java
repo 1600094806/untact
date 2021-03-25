@@ -30,8 +30,16 @@ public class UsrArticleControll {
 	
 	@RequestMapping("/usr/article/list")
 	@ResponseBody
-	public List<Article> showList() {
-		return articleservice.getList();
+	public List<Article> showList(String searchKeyword) {
+		if(searchKeyword != null && searchKeyword.length() == 0) {
+			searchKeyword = null;
+		}
+		
+		if(searchKeyword!=null) {
+			searchKeyword = searchKeyword.trim();
+		}
+		
+		return articleservice.getArticles(searchKeyword);
 	}
 	
 	@RequestMapping("/usr/article/doAdd")
@@ -44,8 +52,6 @@ public class UsrArticleControll {
 			return new ResultData("resultCode","F-1","이유","내용오류");
 
 		}
-		
-		
 		return articleservice.add(title, body);
 	}
 	
